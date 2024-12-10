@@ -1,0 +1,19 @@
+{
+  "name": "parte3-ejercicios",
+  "version": "1.0.0",
+  "description": "ejercicios part3",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Reinaldo Gil Guerra",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
