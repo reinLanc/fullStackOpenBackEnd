@@ -3,9 +3,7 @@ const morgan = require("morgan");
 
 const app = express();
 
-
 app.use(express.json());
-
 
 const cors = require("cors");
 app.use(
@@ -14,6 +12,7 @@ app.use(
   })
 );
 
+app.use(express.static("dist"));
 
 morgan.token("body", (req) =>
   req.method === "POST" ? JSON.stringify(req.body) : ""
@@ -87,10 +86,12 @@ app.post("/api/persons", (request, response) => {
 
 app.get("/info", (request, response) => {
   const currentTime = new Date().toString();
-  response.send(`<p>Phonebook has info for ${persons.length} people <br> ${currentTime}</p>`);
+  response.send(
+    `<p>Phonebook has info for ${persons.length} people <br> ${currentTime}</p>`
+  );
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
