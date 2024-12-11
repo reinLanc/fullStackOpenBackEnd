@@ -1,8 +1,16 @@
 const express = require("express");
-const app = express();
-app.use(express.json());
 const morgan = require("morgan");
-app.use(morgan("tiny"));
+
+const app = express();
+
+app.use(express.json());
+
+morgan.token("body", (req) =>
+  req.method === "POST" ? JSON.stringify(req.body) : ""
+);
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let persons = [
   {
@@ -34,7 +42,6 @@ app.get("/api/persons", (request, response) => {
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   const person = persons.find((person) => person.id === id);
-
   if (person) {
     response.json(person);
   } else {
@@ -45,7 +52,6 @@ app.get("/api/persons/:id", (request, response) => {
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   persons = persons.filter((person) => person.id !== id);
-
   response.status(204).end();
 });
 
