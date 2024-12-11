@@ -3,7 +3,17 @@ const morgan = require("morgan");
 
 const app = express();
 
+
 app.use(express.json());
+
+
+const cors = require("cors");
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+
 
 morgan.token("body", (req) =>
   req.method === "POST" ? JSON.stringify(req.body) : ""
@@ -77,9 +87,7 @@ app.post("/api/persons", (request, response) => {
 
 app.get("/info", (request, response) => {
   const currentTime = new Date().toString();
-  response.send(
-    `<p>Phonebook has info for ${persons.length} people <br> ${currentTime}</p>`
-  );
+  response.send(`<p>Phonebook has info for ${persons.length} people <br> ${currentTime}</p>`);
 });
 
 const PORT = 3001;
