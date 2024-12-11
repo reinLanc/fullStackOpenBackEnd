@@ -8,9 +8,10 @@ app.use(express.json());
 const cors = require("cors");
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://fullstackopenfrontend-dj4i.onrender.com"],
   })
 );
+
 
 app.use(express.static("dist"));
 
