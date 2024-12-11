@@ -47,6 +47,19 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+app.post("/api/persons", (request, response) => {
+  const body = request.body;
+  if (!body.content) {
+    return response.status(400).json({
+      error: "content missing",
+    });
+  }
+  const id = Math.floor(Math.random() * 1000000);
+  const person = { id: id, name: body.name, number: Number(body.number) };
+  persons = persons.concat(person);
+  response.json(person);
+});
+
 app.get("/info", (request, response) => {
   const currentTime = new Date().toString();
   response.send(
