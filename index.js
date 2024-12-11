@@ -48,16 +48,23 @@ app.delete("/api/persons/:id", (request, response) => {
 });
 
 app.post("/api/persons", (request, response) => {
-  const body = request.body;
-  if (!body.content) {
-    return response.status(400).json({
-      error: "content missing",
-    });
+  const { name, number } = request.body;
+
+  if (!name || !number) {
+    return response.status(400).json({ error: "Name and number are required" });
   }
-  const id = Math.floor(Math.random() * 1000000);
-  const person = { id: id, name: body.name, number: Number(body.number) };
+  if (persons.find((person) => person.name === name)) {
+    return response.status(400).json({ error: "Name must be unique" });
+  }
+
+  const person = {
+    id: Math.floor(Math.random() * 1000000),
+    name,
+    number,
+  };
+
   persons = persons.concat(person);
-  response.json(person);
+  response.status(201).json(person);
 });
 
 app.get("/info", (request, response) => {
