@@ -1,18 +1,20 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
-const Person = require('./models/person');
+const Person = require("./models/person");
 
 app.use(express.json());
 
 const cors = require("cors");
 app.use(
   cors({
-     origin: ["http://localhost:5173", "https://fullstackopenfrontend-dj4i.onrender.com"],
+    origin: [
+      "http://localhost:5173",
+      "https://fullstackopenfrontend-dj4i.onrender.com",
+    ],
   })
 );
-
 
 app.use(express.static("dist"));
 
@@ -47,7 +49,7 @@ let persons = [
 ];
 
 app.get("/api/persons", (request, response) => {
-  Person.find({}).then(persons => {
+  Person.find({}).then((persons) => {
     response.json(persons);
   });
 });
@@ -74,18 +76,14 @@ app.post("/api/persons", (request, response) => {
   if (!name || !number) {
     return response.status(400).json({ error: "Name and number are required" });
   }
-  if (persons.find((person) => person.name === name)) {
-    return response.status(400).json({ error: "Name must be unique" });
-  }
 
-  const person = {
-    id: Math.floor(Math.random() * 1000000),
+  const person = new Person({
     name,
     number,
-  };
-
-  persons = persons.concat(person);
-  response.status(201).json(person);
+  });
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 app.get("/info", (request, response) => {
