@@ -25,6 +25,22 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "Unknown endpoint" });
+};
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "Malformatted ID" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  }
+
+  response.status(500).send({ error: "Internal server error" });
+};
+
 let persons = [
   {
     id: 1,
@@ -92,28 +108,32 @@ app.post("/api/persons", (request, response) => {
   });
 });
 
+app.put("/api/persons/:id", (request, response, next) => {
+  const { name, number } = request.body;
+
+  const updatedPerson = { name, number };
+
+  Person.findByIdAndUpdate(request.params.id, updatedPerson, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
+    .then((result) => {
+      if (result) {
+        response.json(result);
+      } else {
+        response.status(404).send({ error: "data not found." });
+      }
+    })
+    .catch((error) => next(error));
+});
+
 app.get("/info", (request, response) => {
   const currentTime = new Date().toString();
   response.send(
     `<p>Phonebook has info for ${persons.length} people <br> ${currentTime}</p>`
   );
 });
-
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "Unknown endpoint" });
-};
-
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "Malformatted ID" });
-  } else if (error.name === "ValidationError") {
-    return response.status(400).json({ error: error.message });
-  }
-
-  response.status(500).send({ error: "Internal server error" });
-};
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
