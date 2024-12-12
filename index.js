@@ -114,6 +114,8 @@ const errorHandler = (error, request, response, next) => {
 
   response.status(500).send({ error: "Internal server error" });
 };
+
+app.use(unknownEndpoint);
 app.use(errorHandler);
 
 const PORT = process.env.PORT;
