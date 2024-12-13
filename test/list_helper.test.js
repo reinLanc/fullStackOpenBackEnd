@@ -39,3 +39,22 @@ describe('totalLikes', () => {
     assert.strictEqual(result, 0)
   })
 })
+
+describe('favoriteBlog',() => {
+  const blogs = [
+    {
+      title: 'Canonical string reduction',
+      author: 'Edsger W. Dijkstra',
+      likes: 12
+    },
+    {
+      title: 'non-Canonical string reduction',
+      author: 'Edsger W. Dijkstra',
+      likes: 13
+    }
+  ]
+  test('returns the blog with most likes',() => {
+    const result = listHelper.favoriteBlog(blogs)
+    assert.deepStrictEqual(result,{ title: 'non-Canonical string reduction',author: 'Edsger W. Dijkstra', likes: 13 })
+  })
+})
