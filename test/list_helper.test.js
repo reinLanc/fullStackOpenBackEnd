@@ -24,4 +24,18 @@ describe('totalLikes', () => {
     const result = listHelper.totalLikes(listWithOneBlog)
     assert.strictEqual(result, 5)
   })
+  test('when list has many blogs, returns the correct sum', () => {
+    const listWithManyBlogs = [
+      { likes: 5 },
+      { likes: 10 },
+      { likes: 7 }
+    ]
+    const result = listHelper.totalLikes(listWithManyBlogs)
+    assert.strictEqual(result, 22)
+  })
+
+  test('when list is empty, equals zero', () => {
+    const result = listHelper.totalLikes([])
+    assert.strictEqual(result, 0)
+  })
 })
