@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const dummy = (blogs) => {
   return 1
 }
@@ -16,26 +18,15 @@ const favoriteBlog = (blogs) => {
 }
 
 const mostBlogs = (blogs) => {
-  const authorCount = {}
-
-  blogs.forEach((blog) => {
-    authorCount[blog.author] = (authorCount[blog.author] || 0) + 1
-  })
-
-  let maxBlogs = 0
-  let mostBlogsAuthor = ''
-  for (let author in authorCount) {
-    if (authorCount[author] > maxBlogs) {
-      maxBlogs = authorCount[author]
-      mostBlogsAuthor = author
-    }
-  }
+  const authorBlogs = _.countBy(blogs, 'author')
+  const mostBlogsAuthor = _.maxBy(Object.entries(authorBlogs), ([author, count]) => count)
 
   return {
-    author: mostBlogsAuthor,
-    blogs: maxBlogs,
+    author: mostBlogsAuthor[0],
+    blogs: mostBlogsAuthor[1],
   }
 }
+
 
 module.exports = {
   dummy,
