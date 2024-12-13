@@ -84,3 +84,27 @@ describe('mostBlogs', () => {
     assert.ok(result.author === 'Author 1' || result.author === 'Author 2')
   })
 })
+
+describe('mostLikes', () => {
+  const listWithMultipleBlogs = [
+    { _id: '1', title: 'Blog 1', author: 'Edsger W. Dijkstra', likes: 5 },
+    { _id: '2', title: 'Blog 2', author: 'Edsger W. Dijkstra', likes: 10 },
+    { _id: '3', title: 'Blog 3', author: 'Robert C. Martin', likes: 3 },
+    { _id: '4', title: 'Blog 4', author: 'Robert C. Martin', likes: 7 },
+    { _id: '5', title: 'Blog 5', author: 'Robert C. Martin', likes: 1 }
+  ]
+
+  test('author with most likes', () => {
+    const result = listHelper.mostLikes(listWithMultipleBlogs)
+    assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', likes: 15 })
+  })
+
+  test('multiple authors with the same number of likes', () => {
+    const listWithEqualLikes = [
+      { _id: '1', title: 'Blog 1', author: 'Author 1', likes: 10 },
+      { _id: '2', title: 'Blog 2', author: 'Author 2', likes: 10 }
+    ]
+    const result = listHelper.mostLikes(listWithEqualLikes)
+    assert.ok(result.author === 'Author 1' || result.author === 'Author 2')
+  })
+})
