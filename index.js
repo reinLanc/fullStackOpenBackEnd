@@ -10,7 +10,7 @@ const cors = require('cors')
 app.use(
   cors({
     origin: [
-      'http://localhost:5173',
+      'http://localhost:3001/api/persons',
       'https://fullstackopenfrontend-dj4i.onrender.com',
     ],
   })
@@ -29,16 +29,17 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'Unknown endpoint' })
 }
 
-const errorHandler = (error, request, response) => {
-  console.error(error.message)
+const errorHandler = (error, request, response, next) => {
+  console.log(error.name , error.name === 'ValidationError')
 
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'Malformatted ID' })
+    return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
+    console.log('====')
     return response.status(400).json({ error: error.message })
   }
 
-  response.status(500).send({ error: 'Internal server error' })
+  next(error)
 }
 
 app.get('/api/persons', (request, response) => {
@@ -89,6 +90,7 @@ app.post('/api/persons', (request, response, next) => {
     })
     .catch((error) => next(error))
 })
+
 
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
