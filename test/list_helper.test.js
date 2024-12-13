@@ -58,3 +58,29 @@ describe('favoriteBlog',() => {
     assert.deepStrictEqual(result,{ title: 'non-Canonical string reduction',author: 'Edsger W. Dijkstra', likes: 13 })
   })
 })
+
+describe('mostBlogs', () => {
+  const listWithMultipleBlogs = [
+    { _id: '1', title: 'Blog 1', author: 'Edsger W. Dijkstra', likes: 5 },
+    { _id: '2', title: 'Blog 2', author: 'Edsger W. Dijkstra', likes: 10 },
+    { _id: '3', title: 'Blog 3', author: 'Robert C. Martin', likes: 3 },
+    { _id: '4', title: 'Blog 4', author: 'Robert C. Martin', likes: 7 },
+    { _id: '5', title: 'Blog 5', author: 'Robert C. Martin', likes: 1 }
+  ]
+
+  test('author with most blogs', () => {
+    const result = listHelper.mostBlogs(listWithMultipleBlogs)
+    assert.deepStrictEqual(result, { author: 'Robert C. Martin', blogs: 3 })
+  })
+
+  test('multiple authors with the same number of blogs', () => {
+    const listWithSameNumberOfBlogs = [
+      { _id: '1', title: 'Blog 1', author: 'Author 1', likes: 5 },
+      { _id: '2', title: 'Blog 2', author: 'Author 1', likes: 3 },
+      { _id: '3', title: 'Blog 3', author: 'Author 2', likes: 8 },
+      { _id: '4', title: 'Blog 4', author: 'Author 2', likes: 10 }
+    ]
+    const result = listHelper.mostBlogs(listWithSameNumberOfBlogs)
+    assert.ok(result.author === 'Author 1' || result.author === 'Author 2')
+  })
+})
