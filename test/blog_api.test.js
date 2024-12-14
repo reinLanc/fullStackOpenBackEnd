@@ -42,7 +42,7 @@ test('unique identifier is named id', async () => {
   assert(response.body[0].id)
 })
 
-test.only('A new valid blog can be added', async () => {
+test('A new valid blog can be added', async () => {
   const newBlog = {
     title: 'test Blog',
     url: 'http://testing.com',
@@ -60,6 +60,19 @@ test.only('A new valid blog can be added', async () => {
 
   assert.strictEqual(response.body.length, initialBlogs.length + 1)
   assert(titles.includes('test Blog'))
+})
+
+test.only('Likes default to 0 if missing',async () => {
+  const newBlog = {
+    title: 'test Blog with 0 likes',
+    url: 'http://testing.com',
+  }
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+  assert.strictEqual(response.body.likes, 0)
 })
 
 after(async () => {
