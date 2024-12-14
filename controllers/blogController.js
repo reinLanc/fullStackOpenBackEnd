@@ -1,18 +1,16 @@
+const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-const getBlogs = (request, response) => {
-  Blog.find({})
-    .then((blogs) => response.json(blogs))
-}
+blogsRouter.get('/', (request, response) => {
+  Blog.find({}).then((blogs) => response.json(blogs))
+})
 
-const createBlog = (request, response) => {
+blogsRouter.post('/', (request, response, next) => {
   const blog = new Blog(request.body)
   blog
     .save()
-    .then((result) => response.status(201).json(result))
-}
+    .then((savedBlog) => response.status(201).json(savedBlog))
+    .catch((error) => next(error))
+})
 
-module.exports = {
-  getBlogs,
-  createBlog,
-}
+module.exports = blogsRouter
