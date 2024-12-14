@@ -62,7 +62,7 @@ test('A new valid blog can be added', async () => {
   assert(titles.includes('test Blog'))
 })
 
-test.only('Likes default to 0 if missing',async () => {
+test('Likes default to 0 if missing',async () => {
   const newBlog = {
     title: 'test Blog with 0 likes',
     url: 'http://testing.com',
@@ -73,6 +73,17 @@ test.only('Likes default to 0 if missing',async () => {
     .expect(201)
 
   assert.strictEqual(response.body.likes, 0)
+})
+
+test('creating blog without title or url return 400', async() => {
+  const newBlog = {
+    likes:5,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
 })
 
 after(async () => {
