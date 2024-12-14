@@ -26,7 +26,7 @@ beforeEach(async () => {
   await Blog.insertMany(initialBlogs)
 })
 
-test.only('blogs are returned as JSON and have the correct number', async () => {
+test('blogs are returned as JSON and have the correct number', async () => {
   await api
     .get('/api/blogs')
     .expect(200)
@@ -35,6 +35,11 @@ test.only('blogs are returned as JSON and have the correct number', async () => 
   const response = await api.get('/api/blogs')
 
   assert.strictEqual(response.body.length, initialBlogs.length)
+})
+
+test.only('unique identifier is named id', async () => {
+  const response = await api.get('/api/blogs')
+  assert(response.body[0].id)
 })
 
 after(async () => {
