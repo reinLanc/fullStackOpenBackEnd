@@ -37,9 +37,29 @@ test('blogs are returned as JSON and have the correct number', async () => {
   assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
-test.only('unique identifier is named id', async () => {
+test('unique identifier is named id', async () => {
   const response = await api.get('/api/blogs')
   assert(response.body[0].id)
+})
+
+test.only('A new valid blog can be added', async () => {
+  const newBlog = {
+    title: 'test Blog',
+    url: 'http://testing.com',
+    likes:54
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const titles = response.body.map(blog => blog.title)
+
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+  assert(titles.includes('test Blog'))
 })
 
 after(async () => {
