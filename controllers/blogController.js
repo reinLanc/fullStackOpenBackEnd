@@ -49,7 +49,7 @@ blogsRouter.delete('/:id', async (request, response) => {
     return response.status(401).json({ error: 'token invalid' })
   }
 
-  if (blog.user.toString() !== decodedToken.id) {
+  if (blog.user.toString() !== decodedToken.id.toString()) {
     return response.status(403).json({ error: 'only the owner can delete this blog' })
   }
 
