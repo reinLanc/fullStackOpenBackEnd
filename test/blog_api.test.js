@@ -90,6 +90,37 @@ describe('deletion of a blog', () => {
   })
 })
 
+describe('updating a blog', () => {
+  test('succeeds with a valid id and updated likes', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+
+    const updatedBlog = {
+      likes: blogToUpdate.likes + 1,
+    }
+
+    const response = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    assert.strictEqual(response.body.likes, updatedBlog.likes)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const updatedBlogInDb = blogsAtEnd.find(b => b.id === blogToUpdate.id)
+    assert.strictEqual(updatedBlogInDb.likes, updatedBlog.likes)
+  })
+
+  test('fails with status code 404 if blog does not exist', async () => {
+    const validNonExistingId = await helper.nonExistingId()
+
+    await api
+      .get(`/api/blogs/${validNonExistingId}`)
+      .expect(404)
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
