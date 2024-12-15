@@ -6,10 +6,16 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const helper = require('../utils/blogs_helper')
+const User = require('../models/user')
+const bcrypt = require('bcryptjs')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
+  await User.deleteMany({})
+  const passwordHash = await bcrypt.hash('secret', 10)
+  const user = new User({ username: 'root', passwordHash })
+  await user.save()
 })
 
 test('blogs are returned as JSON and have the correct number', async () => {
@@ -121,6 +127,83 @@ describe('updating a blog', () => {
   })
 })
 
+//TEST USERS
+
+test('Creation of a new user with valid data succeeds', async() => {
+  const newUser = {
+    username: 'validuser',
+    name: 'valid user',
+    password: 'validpassword',
+  }
+
+  const response = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.username, newUser.username)
+  assert.strictEqual(response.body.name, newUser.name)
+  assert.strictEqual(response.body.passwordHash, undefined)
+} )
+
+test('creation of a user fails if username is too short', async () => {
+  const newUser = {
+    username: 'us',
+    name: 'Short User',
+    password: 'validpassword',
+  }
+
+  const response = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
+
+  assert.strictEqual(response.body.error, 'Username must be at least 3 characters long')
+})
+
+test('creation of a user fails if password is too short', async () => {
+  const newUser = {
+    username: 'validuser',
+    name: 'Valid User',
+    password: 'pw',
+  }
+
+  const response = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
+
+  assert.strictEqual(response.body.error, 'Password must be at least 3 characters long')
+})
+
+test('creation of a user fails if username is not unique', async () => {
+  const newUser1 = {
+    username: 'uniqueuser',
+    name: 'User One',
+    password: 'validpassword',
+  }
+
+  await api
+    .post('/api/users')
+    .send(newUser1)
+    .expect(201)
+
+  const newUser2 = {
+    username: 'uniqueuser',
+    name: 'User Two',
+    password: 'anotherpassword',
+  }
+
+  const response = await api
+    .post('/api/users')
+    .send(newUser2)
+    .expect(400)
+
+  assert.strictEqual(response.body.error, 'Username must be unique')
+})
+
 after(async () => {
+  await User.deleteMany()
   await mongoose.connection.close()
 })
