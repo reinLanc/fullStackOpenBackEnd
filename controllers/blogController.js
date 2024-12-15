@@ -14,9 +14,9 @@ blogsRouter.post('/', async (request, response) => {
     return response.status(400).json({ error: 'title or url missing' })
   }
 
-  const user = await User.findById(body.userId)
+  const user = await User.findOne()
   if (!user) {
-    return response.status(400).json({ error: 'Invalid userId' })
+    return response.status(400).json({ error: 'No user founded.' })
   }
 
   const blog = new Blog({
