@@ -11,12 +11,21 @@ const bcrypt = require('bcryptjs')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(helper.initialBlogs)
   await User.deleteMany({})
   const passwordHash = await bcrypt.hash('secret', 10)
   const user = new User({ username: 'root', passwordHash })
   await user.save()
+  const blogsWithUser = helper.initialBlogs.map(blog => ({
+    ...blog,
+    user: user._id,
+  }))
+  await Blog.insertMany(blogsWithUser)
+  const userForToken = { username: user.username, id: user._id }
+  global.token = require('jsonwebtoken').sign(userForToken, process.env.SECRET, {
+    expiresIn: '1h',
+  })
 })
+
 
 test('blogs are returned as JSON and have the correct number', async () => {
   await api
@@ -43,6 +52,7 @@ test('A new valid blog can be added', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${global.token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -61,6 +71,7 @@ test('Likes default to 0 if missing',async () => {
   }
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${global.token}`)
     .send(newBlog)
     .expect(201)
 
@@ -85,6 +96,7 @@ describe('deletion of a blog', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${global.token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
@@ -201,6 +213,25 @@ test('creation of a user fails if username is not unique', async () => {
     .expect(400)
 
   assert.strictEqual(response.body.error, 'Username must be unique')
+})
+
+test('Adding a blog fails with status 401 if no token is provided', async () => {
+  const newBlog = {
+    title: 'test Blog without token',
+    url: 'http://testing.com',
+    likes: 10,
+  }
+
+  const result = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+
+  assert.strictEqual(
+    result.body.error,
+    'jwt must be provided',
+    'Expected error message "jwt must be provided", but received something else.'
+  )
 })
 
 after(async () => {

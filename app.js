@@ -2,12 +2,22 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
-const config = require('./utils/config')
-const logger = require('./utils/logger')
-const middleware = require('./utils/middleware')
 const blogsRouter = require('./controllers/blogController')
 const usersRouter = require('./controllers/userController')
 const loginRouter = require('./controllers/loginController')
+const middleware = require('./utils/middleware')
+const logger = require('./utils/logger')
+const config = require('./utils/config')
+
+
+// Middleware general
+app.use(cors())
+app.use(express.json())
+app.use(middleware.requestLogger)
+app.use(cors())
+app.use(middleware.tokenExtractor)
+
+// Conectar con la base de datos
 
 
 mongoose
@@ -17,15 +27,14 @@ mongoose
     logger.error('Error connecting to MongoDB:', error.message)
   )
 
-app.use(cors())
-app.use(express.json())
-app.use(middleware.requestLogger)
-app.use(middleware.tokenExtractor)
 
+
+// Rutas
+app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
-app.use('/api/blogs', middleware.userExtractor, blogsRouter)
 app.use('/api/login', loginRouter)
 
+// Middlewares para manejo de errores y rutas desconocidas
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
