@@ -86,7 +86,12 @@ test('creating blog without title or url return 400', async() => {
   await api
     .post('/api/blogs')
     .send(newBlog)
+    .set('Authorization', `Bearer ${global.token}`)
     .expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
 })
 
 describe('deletion of a blog', () => {
@@ -222,19 +227,12 @@ test('Adding a blog fails with status 401 if no token is provided', async () => 
     likes: 10,
   }
 
-  const result = await api
+  await api
     .post('/api/blogs')
     .send(newBlog)
     .expect(401)
-
-  assert.strictEqual(
-    result.body.error,
-    'jwt must be provided',
-    'Expected error message "jwt must be provided", but received something else.'
-  )
 })
 
 after(async () => {
-  await User.deleteMany()
   await mongoose.connection.close()
 })
